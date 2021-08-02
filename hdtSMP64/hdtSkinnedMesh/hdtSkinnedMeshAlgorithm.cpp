@@ -9,7 +9,7 @@ namespace hdt
 	{
 	}
 	
-	static const CollisionResult zero;
+	//static const CollisionResult zero;
 
 	template<class T0, class T1>
 	struct CollisionCheck

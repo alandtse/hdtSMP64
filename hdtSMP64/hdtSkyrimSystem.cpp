@@ -2,7 +2,7 @@
 #include "hdtSkinnedMesh\hdtSkinnedMeshShape.h"
 #include "../hdtSSEUtils/NetImmerseUtils.h"
 #include "../hdtSSEUtils/FrameworkUtils.h"
-#include <skse64\skse64\GameStreams.h>
+#include <sksevr\skse64\GameStreams.h>
 #include "skse64/GameReferences.h"
 #include "XmlReader.h"
 

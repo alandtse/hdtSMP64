@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
@@ -11,23 +11,28 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{EBB1A6FA-5E3C-49B5-A5B6-A6495B9CD5B0}</ProjectGuid>
+    <ProjectGuid>{6BDD43E4-A8D9-49CA-9F76-954718F295EE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>hdtSSEUtils</RootNamespace>
+    <RootNamespace>skse64_loader</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccProvider>
+    </SccProvider>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -45,87 +50,82 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir);$(SolutionDir)..;$(IncludePath)</IncludePath>
+    <TargetName>sksevr_loader</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir);$(SolutionDir)..;$(IncludePath)</IncludePath>
+    <TargetName>sksevr_loader</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>common/IPrefix.h</ForcedIncludeFiles>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>version.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "$(TargetPath)" "$(SkyrimVRPath)\$(TargetFileName)" /Y</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Installing Loader...</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>common/IPrefix.h</ForcedIncludeFiles>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>version.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "$(TargetPath)" "$(SkyrimVRPath)\$(TargetFileName)" /Y</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Installing Loader...</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="FrameworkUtils.h" />
-    <ClInclude Include="IString.h" />
-    <ClInclude Include="NetImmerseUtils.h" />
-    <ClInclude Include="Ref.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="StringImpl.h" />
-    <ClInclude Include="targetver.h" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Options.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\common\IDataStream.cpp" />
-    <ClCompile Include="..\..\common\IDebugLog.cpp" />
-    <ClCompile Include="..\..\common\IErrors.cpp" />
-    <ClCompile Include="..\..\common\IFileStream.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\GameAPI.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\GameBSExtraData.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\GameData.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\GameEvents.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\GameExtraData.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\GameFormComponents.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\GameForms.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\GameReferences.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\GameRTTI.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\GameStreams.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\GameTypes.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\GameUtilities.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\HashUtil.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\NiGeometry.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\NiNodes.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\NiObjects.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\NiRTTI.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\NiTypes.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\PapyrusArgs.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\PapyrusInterfaces.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\PapyrusNativeFunctions.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64\PapyrusVM.cpp" />
-    <ClCompile Include="..\..\sksevr\skse64_common\Relocation.cpp" />
-    <ClCompile Include="NetImmerseUtils.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="StringImpl.cpp" />
+    <ClInclude Include="Options.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\common\common_vc14.vcxproj">
+      <Project>{472e19ab-def0-42df-819b-18722e8dc822}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\skse64_common\skse64_common.vcxproj">
+      <Project>{5fd1c08d-db80-480c-a1c6-f0920005cd13}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\skse64_loader_common\skse64_loader_common.vcxproj">
+      <Project>{fb6e1aeb-69b7-496e-a02c-9776fc0d6e0d}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\skse64_common\skse_version.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
