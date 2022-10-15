@@ -153,7 +153,7 @@ namespace hdt
 		for (auto& i : m_systems)
 		{
 			auto system = static_cast<SkyrimSystem*>(i());
-			if (system->m_windFactor == 0.f) // skip any systems that aren't affected by wind
+			if (btFuzzyZero(system->m_windFactor)) // skip any systems that aren't affected by wind
 				continue;
 			for (auto& j : i->m_bones)
 			{
