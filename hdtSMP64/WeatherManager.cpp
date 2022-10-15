@@ -42,20 +42,11 @@ size_t hdt::randomGenerator(size_t min, size_t max) {
 	return dist(rng);
 }
 
-// Dot product of 2 vectors 
-static inline float Dot(NiPoint3 A, NiPoint3 B)
-{
-	float x1, y1, z1;
-	x1 = A.x * B.x;
-	y1 = A.y * B.y;
-	z1 = A.z * B.z;
-	return (x1 + y1 + z1);
-}
-
 static inline NiPoint3 crossProduct(NiPoint3 A, NiPoint3 B)
 {
 	return NiPoint3(A.y * B.z - A.z * B.y, A.z * B.x - A.x * B.z, A.x * B.y - A.y * B.x);
 }
+
 // Calculates a dot product
 static inline float dot(NiPoint3 a, NiPoint3 b)
 {
@@ -68,22 +59,16 @@ static inline NiPoint3 cross(NiPoint3 a, NiPoint3 b)
 	return NiPoint3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
 }
 
-
 static inline NiPoint3 rotate(const NiPoint3& v, const NiPoint3& axis, float theta)
 {
 	const float cos_theta = cosf(theta);
 
-	return (v * cos_theta) + (crossProduct(axis, v) * sinf(theta)) + (axis * Dot(axis, v)) * (1 - cos_theta);
+	return (v * cos_theta) + (crossProduct(axis, v) * sinf(theta)) + (axis * dot(axis, v)) * (1 - cos_theta);
 }
 
 float hdt::magnitude(NiPoint3 p)
 {
 	return sqrtf(p.x * p.x + p.y * p.y + p.z * p.z);
-}
-
-static inline float angleBetweenVectors(const NiPoint3& v1, const NiPoint3& v2)
-{
-	return std::acos(dot(v1, v2) / (magnitude(v1) * magnitude(v2))) * 57.295776f;
 }
 
 void hdt::WeatherCheck()
