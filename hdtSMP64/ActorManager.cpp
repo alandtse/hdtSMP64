@@ -216,7 +216,8 @@ namespace hdt
 							diff.z = 0;	//remove z component difference
 							const auto dist = hdt::magnitude(diff);
 							// wind is a linear reduction, with a minimum floor since objects may have a minimum distance
-							const auto windFactor = dist <= world->m_distanceForNoWind ? 0.0 : min(1.0f, abs(dist - world->m_distanceForNoWind) / world->m_distanceForMaxWind);
+							// windfactor = 0 when dist <= m_distanceForNoWind, = 1 when dist >= m_distanceForMaxWind, and is linear with dist between these 2 values.
+							const auto windFactor = std::clamp((dist - world->m_distanceForNoWind) / (world->m_distanceForMaxWind - world->m_distanceForNoWind), 0.f, 1.f);
 							if (!btFuzzyZero(windFactor - i.getWindFactor())) {
 								_DMESSAGE("%s blocked by %s %s %s with distance %2.2g; setting windFactor %2.2g",
 									i.name(), object->m_name,
