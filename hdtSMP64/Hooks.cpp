@@ -166,9 +166,9 @@ namespace hdt
 			}
 		}
 	};
-	
+
 	RelocAddr<uintptr_t> BoneLimit(offset::BSFaceGenModelExtraData_BoneLimit);
-	
+
 	void hookFaceGen()
 	{
 		DetourAttach((void**)BSFaceGenNiNodeEx::_SkinSingleGeometry_GetPtrAddr(),
@@ -250,20 +250,42 @@ namespace hdt
 
 	struct UnkEngine
 	{
+		// This is the main loop
+		//https://github.com/powerof3/CommonLibSSE/blob/master/include/RE/M/Main.h
 		MEMBER_FN_PREFIX(UnkEngine);
 
 		DEFINE_MEMBER_FN_HOOK(onFrame, void, offset::GameLoopFunction);
 
 		void onFrame();
 
-		void** vtbl0;
-		void** vtbl1;
-		bool quitGame; // 10
-		char unk[0x05];
-		bool gamePaused; // 16
+		// members
+#ifndef SKYRIMVR
+		char unk[0x10];
+		bool                         quitGame;                     // 010
+		bool                         resetGame;                    // 011
+		bool                         fullReset;                    // 012
+		bool                         gameActive;                   // 013
+		bool                         onIdle;                       // 014
+		bool                         reloadContent;                // 015
+		bool                         freezeTime;                   // 016
+		bool                         freezeNextFrame;              // 017
 	};
 	static_assert(offsetof(UnkEngine, quitGame) == 0x10);
-	static_assert(offsetof(UnkEngine, gamePaused) == 0x16);
+	static_assert(offsetof(UnkEngine, freezeTime) == 0x16);
+#else
+		char unk[0x8];
+		bool                         quitGame;                     // 008
+		bool                         resetGame;                    // 009
+		bool                         fullReset;                    // 00a
+		bool                         gameActive;                   // 00b
+		bool                         onIdle;                       // 00c
+		bool                         reloadContent;                // 00d
+		bool                         freezeTime;                   // 00e
+		bool                         freezeNextFrame;              // 00f
+	};
+	static_assert(offsetof(UnkEngine, quitGame) == 0x08);
+	static_assert(offsetof(UnkEngine, freezeTime) == 0x0e);
+#endif
 
 	void UnkEngine::onFrame()
 	{
@@ -276,7 +298,7 @@ namespace hdt
 		else
 		{
 			FrameEvent e;
-			e.gamePaused = this->gamePaused;
+			e.gamePaused = this->freezeTime;
 			g_frameEventDispatcher.dispatch(e);
 		}
 	}
