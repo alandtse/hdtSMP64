@@ -612,7 +612,6 @@ target_include_directories(
 	PRIVATE
 		"${CMAKE_CURRENT_BINARY_DIR}/src"
 		"${SOURCE_DIR}"
-		${DETOURS_LIBRARY}
 		${BULLET_INCLUDE_DIRS}
 )
 
@@ -685,6 +684,43 @@ target_link_libraries(
 		${DETOURS_LIBRARY}
 		${BULLET_LIBRARIES}
 )
+
+if(ENABLE_CUDA_SUPPORT STREQUAL "ON")
+	enable_language(CUDA)
+	add_compile_definitions(CUDA)
+	find_package(CUDAToolkit REQUIRED)
+
+	set(CUDA_ARCHS "89") # https://en.wikipedia.org/wiki/CUDA
+
+	set(PROJECT_NAME_CUDA "${PROJECT_NAME}_CUDA")
+	
+	add_library(
+		"${PROJECT_NAME_CUDA}"
+		STATIC
+			"${SOURCE_DIR}/hdtSkinnedMesh/hdtCudaCollision.cu"
+	)
+
+	set_target_properties(
+		${PROJECT_NAME_CUDA}
+		PROPERTIES
+			CUDA_STANDARD 20  # Not "CUDA23"
+			CUDA_STANDARD_REQUIRED ON
+			CUDA_ARCHITECTURES "${CUDA_ARCHS}"  # From auto-detection or manual
+			CUDA_RESOLVE_DEVICE_SYMBOLS ON      # Better device code linking
+			CUDA_SEPARABLE_COMPILATION ON       # Required for linking device code
+			CUDA_RUNTIME_LIBRARY Static
+	)
+
+	target_link_libraries(${PROJECT_NAME_CUDA} PRIVATE
+#	  CUDA::cudart          # CUDA runtime
+	)
+
+	target_link_libraries(
+		"${PROJECT_NAME}"
+		PUBLIC
+			${PROJECT_NAME_CUDA}
+	)
+endif()
 
 target_precompile_headers(
 	"${PROJECT_NAME}"

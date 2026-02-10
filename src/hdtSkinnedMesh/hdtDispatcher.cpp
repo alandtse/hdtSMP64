@@ -119,8 +119,8 @@ namespace hdt
 							it1->second.first = shape1->m_shape->asPerVertexShape();
 						if (a && b)
 						{
-							it0->second.first = a->m_verticesCollision;
-							it1->second.first = b->m_verticesCollision;
+							it0->second.first = a->m_verticesCollision.get();
+							it1->second.first = b->m_verticesCollision.get();
 						}
 #else
 						if (a)

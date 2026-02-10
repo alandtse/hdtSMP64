@@ -1,6 +1,5 @@
 #include "Hooks.h"
 #include "Events.h"
-#include "Hooks.h"
 #include "ActorManager.h"
 #include "hdtSkyrimPhysicsWorld.h"
 #include "PluginInterfaceImpl.h"
@@ -8,6 +7,11 @@
 #include "dhdtPapyrusFunctions.h"
 #include "config.h"
 #include "WeatherManager.h"
+
+#ifdef CUDA
+#	include "hdtSkinnedMesh/hdtCudaInterface.h"
+#	include "hdtSkinnedMesh/hdtFrameTimer.h"
+#endif
 
 void checkOldPlugins()
 {
@@ -368,8 +372,8 @@ bool SMPDebug_Execute
 #ifdef CUDA
 	if (_strnicmp(buffer, "gpu", MAX_PATH) == 0) 
 	{
-		CudaInterface::enableCuda = !CudaInterface::enableCuda;
-		if (CudaInterface::instance()->hasCuda()) 
+		hdt::CudaInterface::enableCuda = !hdt::CudaInterface::enableCuda;
+		if (hdt::CudaInterface::instance()->hasCuda()) 
 		{
 			RE::ConsoleLog::GetSingleton()->Print("CUDA collision enabled");
 		} 
@@ -382,8 +386,8 @@ bool SMPDebug_Execute
 	}
 	if (_strnicmp(buffer, "timing", MAX_PATH) == 0) 
 	{
-		FrameTimer::instance()->reset(200);
-		Console_Print("Started frame timing");
+		hdt::FrameTimer::instance()->reset(200);
+		logger::trace("Started frame timing");
 		return true;
 	}
 #endif
@@ -591,9 +595,9 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []()
 
 	v.PluginVersion(Plugin::VERSION);
 	v.PluginName(Plugin::NAME);
-	v.UsesAddressLibrary(true);
+	v.UsesAddressLibrary();
 	v.CompatibleVersions({ SKSE::RUNTIME_SSE_LATEST });
-	v.HasNoStructUse(true);
+	v.UsesUpdatedStructs();
 
 	return v;
 }();
@@ -622,7 +626,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	InitializeLog();
 	logger::info("{} v{}"sv, Plugin::NAME, Plugin::VERSION.string());
 
-	SKSE::Init(a_skse);
+	SKSE::Init(a_skse, false);
 	
 	const auto messaging = SKSE::GetMessagingInterface();
 	if (!messaging->RegisterListener("SKSE", MessageHandler)) 

@@ -44,7 +44,7 @@ namespace hdt
 		{
 			if (!m_ok)
 			{
-				_MESSAGE("{}: {}", context.c_str(), m_message.c_str());
+				logger::warn("{}: {}", context.c_str(), m_message.c_str());
 			}
 			return m_ok;
 		}

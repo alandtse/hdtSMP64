@@ -699,7 +699,7 @@ namespace hdt
 		int npairs = pairs.size();
 
 		// Create buffers for collision processing
-		CudaCollisionPair<T::CudaType> collisionPair(
+		CudaCollisionPair<typename T::CudaType> collisionPair(
 			shape0->m_cudaObject.get(),
 			shape1->m_cudaObject.get(),
 			npairs);

@@ -79,8 +79,8 @@ namespace hdt
 				: m_size(n * sizeof(CudaT))
 			{
 				static_assert(sizeof(CudaT) == sizeof(HostT), "Device and host types different sizes");
-				cuGetDeviceBuffer(&reinterpret_cast<void*>(m_deviceData), m_size).check(__FUNCTION__);
-				cuGetHostBuffer(&reinterpret_cast<void*>(m_hostData), m_size).check(__FUNCTION__);
+				cuGetDeviceBuffer(reinterpret_cast<void**>(&m_deviceData), m_size).check(__FUNCTION__);
+				cuGetHostBuffer(reinterpret_cast<void**>(&m_hostData), m_size).check(__FUNCTION__);
 				m_zeroCopyData = reinterpret_cast<CudaT*>(cuDevicePointer(m_hostData));
 			}
 
@@ -166,7 +166,7 @@ namespace hdt
 			CudaDeviceBuffer(int n)
 				: m_size(n * sizeof(CudaT))
 			{
-				cuGetDeviceBuffer(&reinterpret_cast<void*>(m_deviceData), m_size);
+				cuGetDeviceBuffer(reinterpret_cast<void**>(&m_deviceData), m_size);
 			}
 
 			~CudaDeviceBuffer()
