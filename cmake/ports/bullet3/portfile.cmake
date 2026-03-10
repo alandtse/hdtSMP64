@@ -74,6 +74,10 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
         rtti                 USE_MSVC_DISABLE_RTTI
 )
 
+if("multithreading" IN_LIST FEATURES AND VCPKG_TARGET_IS_WINDOWS)
+    list(APPEND FEATURE_OPTIONS -DBULLET2_USE_PPL_MULTITHREADING=ON)
+endif()
+
 string(COMPARE EQUAL "${VCPKG_CRT_LINKAGE}" "dynamic" USE_MSVC_RUNTIME_LIBRARY_DLL)
 
 vcpkg_cmake_configure(
