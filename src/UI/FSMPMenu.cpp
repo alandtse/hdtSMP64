@@ -653,6 +653,10 @@ namespace
 
 	// ---- Tab bodies -------------------------------------------------------------------------------------
 
+	// Draws the "Simplification" tab: the performance trade-off controls in three sections --- disabling
+	// physics outright (hair-under-wig, invisible hair, 1st person, dead actors), limiting how many NPCs get
+	// physics at once (with optional auto-adjust), and distance/screen-size culling. Each row reads and writes
+	// the live ActorManager/world value in place and commits (persists) only when the user changes it.
 	void SimplificationBody()
 	{
 		filterBox();
@@ -674,19 +678,6 @@ namespace
 					"Skip the player's physics while in first-person view to save performance.",
 					&a->m_disable1stPersonViewPhysics, d.disable1stPersonViewPhysics))
 				commitReset();
-			endRows();
-		}
-
-		section(fa::Sliders, "Distance / screen-size culling");
-		if (beginRows("simpl.cull")) {
-			if (rowFloat("Always-on distance",
-					"Physics is always calculated for NPCs closer than this (units), even off-screen.",
-					&a->m_minCullingDistance, d.minCullingDistance, 0.0f, 10000.0f, "%.0f"))
-				commitReset();
-			if (rowFloat("Min screen size %",
-					"Skip non-player NPCs smaller than this % of screen height. 0 disables the check.",
-					&a->m_minScreenSizePercent, d.minScreenSizePercent, 0.0f, 100.0f, "%.1f"))
-				commitReset();
 			if (rowCheck("Skip dead actors",
 					"Skip physics for dead non-player actors (corpses). The player is never affected.",
 					&a->m_skipDeadActors, d.skipDeadActors))
@@ -697,7 +688,7 @@ namespace
 		section(fa::Bolt, "Limiting active physics NPCs");
 		if (beginRows("simpl.limit")) {
 			if (rowInt("Maximum physics NPCs",
-					"Upper bound on simultaneously simulated NPCs (including the player).",
+					"Upper bound on simultaneously simulated NPCs (including the player); default 20. With auto-adjust off it's a fixed cap; with it on it's the ceiling and the live cap floats between 3 and this value. NPCs within the always-on distance are exempt from this limit (other simplifications still apply).",
 					&a->m_maxActiveSkeletons, d.maximumActiveSkeletons, 0, 200))
 				commitReset();
 			if (rowCheck("Auto-adjust the max number of physics NPCs",
@@ -714,6 +705,19 @@ namespace
 					&w->m_sampleSize, d.sampleSize, 1, 50))
 				commitReset();
 			ImGuiMCP::EndDisabled();
+			endRows();
+		}
+
+		section(fa::Sliders, "Distance / screen-size culling");
+		if (beginRows("simpl.cull")) {
+			if (rowFloat("Always-on distance",
+					"Physics is always calculated for NPCs closer than this (units), even off-screen. Takes priority over the maximum physics NPCs limit.",
+					&a->m_minCullingDistance, d.minCullingDistance, 0.0f, 10000.0f, "%.0f"))
+				commitReset();
+			if (rowFloat("Min screen size %",
+					"Skip non-player NPCs smaller than this % of screen height. 0 disables the check.",
+					&a->m_minScreenSizePercent, d.minScreenSizePercent, 0.0f, 100.0f, "%.1f"))
+				commitReset();
 			endRows();
 		}
 	}
@@ -1033,6 +1037,9 @@ namespace
 			ImGuiMCP::Text("%.2f ms", ms);
 	}
 
+	// Draws the "Measures" tab: a live, read-only read-out of physics timing (per-frame cost split into
+	// setup/wait/apply/background/hidden/total) and load (active-vs-max NPCs, frame-time budget), plus the
+	// profiler toggle. Values refresh every frame from SkyrimPhysicsWorld/ActorManager; nothing is editable.
 	void MeasuresBody()
 	{
 		auto* w = SkyrimPhysicsWorld::get();
@@ -1124,7 +1131,10 @@ namespace
 			ImGuiMCP::SetWindowFontScale(hdt::g_overlayFontScale);  // sized by the A-/A+ next to the overlay toggle
 			ImGuiMCP::TextColored(msColor(w->m_averageSMPProcessingTimeInMainLoop), "%.2f ms",
 				w->m_averageSMPProcessingTimeInMainLoop);
+			tip("Milliseconds the physics simulation adds to each frame. Lower is better.");
 			ImGuiMCP::Text("%s: %d / %d", tr("Active physics NPCs"), a->activeSkeletons, a->m_maxActiveSkeletons);
+			tip("Active NPCs vs the configured maximum; auto-adjust may lower the effective cap. NPCs within "
+				"the always-on distance are exempt from this maximum, so the count can exceed it.");
 		}
 		ImGuiMCP::End();
 		if (!open && g_overlay)
