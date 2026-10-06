@@ -1,7 +1,11 @@
 #pragma once
 
+#include "PluginOwnerAPI.h"
+
 /*Plugins should register for messages from hdtSMP64 via SKSE during SKSE's PostLoad event.
 * When ready, hdtSMP64 will send a message of type MSG_STARTUP containing a PluginInterface* as data.
+*
+* Plugin authors need both this header and PluginOwnerAPI.h.
 *
 * A plugin MUST verify compatibility with the interface version before calling any other functions.
 * The interface version is semantic, meaning that
@@ -42,6 +46,21 @@ namespace hdt
 	using IPreStepListener = RE::BSTEventSink<PreStepEvent>;
 	using IPostStepListener = RE::BSTEventSink<PostStepEvent>;
 
+	//Sent on the main thread right after the engine update; hdtSMP64 launches its simulation from this event.
+	struct PluginFrameEvent
+	{
+		bool gamePaused{ false };
+	};
+
+	//Sent on the main thread after hdtSMP64 has joined its simulation and written its own bone transforms,
+	//before skinning. Plugin listeners run after hdtSMP64's own handler.
+	struct PluginFrameSyncEvent
+	{
+	};
+
+	using IFrameListener = RE::BSTEventSink<PluginFrameEvent>;
+	using IFrameSyncListener = RE::BSTEventSink<PluginFrameSyncEvent>;
+
 	class PluginInterface
 	{
 	public:
@@ -64,7 +83,7 @@ namespace hdt
 		};
 
 	public:
-		constexpr static Version INTERFACE_VERSION{ 2, 0, 0 };
+		constexpr static Version INTERFACE_VERSION{ 2, 1, 0 };
 		constexpr static Version BULLET_VERSION{ 3, 24, 0 };
 
 	public:
@@ -77,5 +96,22 @@ namespace hdt
 
 		virtual void addListener(IPostStepListener*) = 0;
 		virtual void removeListener(IPostStepListener*) = 0;
+
+		// @brief Registers an owner that is asked to take over simulation of specific meshes, in registration order.
+		virtual void addMeshOwner(IMeshOwner*) = 0;
+
+		// @brief Unregisters an owner. Call it from the game main thread, never concurrently with an owner callback.
+		virtual void removeMeshOwner(IMeshOwner*) = 0;
+
+		// @brief Re-runs the soft reload for an actor, so every one of its meshes asks the mesh owners again.
+		virtual void reloadActorPhysics(RE::Actor*) = 0;
+
+		// @brief Registers a listener for PluginFrameEvent. Listeners run in registration order.
+		virtual void addFrameListener(IFrameListener*) = 0;
+		virtual void removeFrameListener(IFrameListener*) = 0;
+
+		// @brief Registers a listener for PluginFrameSyncEvent. Listeners run in registration order.
+		virtual void addFrameSyncListener(IFrameSyncListener*) = 0;
+		virtual void removeFrameSyncListener(IFrameSyncListener*) = 0;
 	};
 }

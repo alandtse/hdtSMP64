@@ -287,7 +287,7 @@ bool hdt::papyrus::impl::ReloadPhysicsFileImpl(uint32_t on_actor_formID, uint32_
 
 					RE::BSTSmartPointer<SkyrimSystem> system;
 
-					system = SkyrimSystemCreator().createOrUpdateSystem(skeleton.npc.get(), armor.armorWorn.get(), &armor.physicsFile, std::move(renameMap), oldSystem.get());
+					system = armor.createSystem(MeshKind::Armor, skeleton.npc.get(), armor.armorWorn.get(), std::move(renameMap), oldSystem.get());
 
 					if (system) {
 						system->block_resetting = true;
@@ -391,7 +391,7 @@ bool hdt::papyrus::impl::SwapPhysicsFileImpl(uint32_t on_actor_formID, std::stri
 					}
 
 					auto renameMap = armor.renameMap;
-					RE::BSTSmartPointer<SkyrimSystem> system = SkyrimSystemCreator().createOrUpdateSystem(skeleton.npc.get(), armor.armorWorn.get(), &armor.physicsFile, std::move(renameMap), oldSystem.get());
+					RE::BSTSmartPointer<SkyrimSystem> system = armor.createSystem(MeshKind::Armor, skeleton.npc.get(), armor.armorWorn.get(), std::move(renameMap), oldSystem.get());
 
 					if (system) {
 						system->block_resetting = true;
