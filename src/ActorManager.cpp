@@ -1,5 +1,6 @@
 
 #include "ActorManager.h"
+#include "Profiling.h"
 #include "WeatherManager.h"
 #include "dhdtOverrideManager.h"
 #include "hdtDefaultBBP.h"
@@ -258,6 +259,8 @@ namespace hdt
 
 	RE::BSEventNotifyControl ActorManager::ProcessEvent(const Events::FrameEvent*, RE::BSTEventSource<Events::FrameEvent>*)
 	{
+		HDT_ZONE("hdtSMP64::ActorManagerFrame");
+
 		std::lock_guard<decltype(m_lock)> l(m_lock);
 
 		fixArmorNameMaps();
