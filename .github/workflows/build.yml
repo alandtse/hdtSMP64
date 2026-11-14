@@ -154,6 +154,11 @@ jobs:
             avx_variant: avx2
           - preset: vs2022-windows-avx512
             avx_variant: avx512
+          # Profiling build for testers who capture with Tracy. Uploaded under a "tracy-" name so the
+          # raw-* glob in the package job keeps it out of the FOMOD; it ships as a separate zip.
+          - preset: vs2022-windows-avx2-tracy
+            avx_variant: avx2
+            artifact_prefix: tracy
 
     steps:
       - name: Checkout the repository
@@ -205,7 +210,7 @@ jobs:
         # AVX-512, so an avx512-compiled test crashes on an illegal instruction. The tests
         # validate SIMD-independent logic, so running them on the <=avx2 variants fully covers
         # them; skip only the avx512 run (it still builds).
-        if: matrix.preset != 'vs2022-windows-avx512'
+        if: matrix.preset != 'vs2022-windows-avx512' && matrix.artifact_prefix == ''
         run: ctest --test-dir out/build/${{ matrix.preset }} -C Release --output-on-failure
 
       - name: Verify build info embedded in DLL
@@ -239,7 +244,7 @@ jobs:
       - name: Upload the build folder
         uses: actions/upload-artifact@v4
         with:
-          name: raw-${{ matrix.preset }}
+          name: ${{ matrix.artifact_prefix || 'raw' }}-${{ matrix.preset }}
           path: out/build/${{ matrix.preset }}/plugins/
 
   package:
@@ -314,6 +319,11 @@ jobs:
           mkdir -p "final_package/SKSE/Plugins/Fonts"
           cp configs/fonts/FSMPMono.ttf configs/fonts/FSMPMono.LICENSE.txt "final_package/SKSE/Plugins/Fonts/"
 
+          # 5b. The Tracy build is not part of the FOMOD: zip its plugin folder on its own
+          mkdir -p tracy_package
+          cp -r tmp_artifacts/tracy-*/. tracy_package/
+          (cd tracy_package && 7z a -tzip -mx=9 ../FSMP-${{ needs.prepare.outputs.tag_version }}-tracy-avx2.zip .)
+
           # 6. Create the unique ZIP
           cd final_package
           # a: add to archive
@@ -333,7 +343,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: FSMP-${{ needs.prepare.outputs.tag_version }}
-          path: FSMP-${{ needs.prepare.outputs.tag_version }}.zip
+          path: |
+            FSMP-${{ needs.prepare.outputs.tag_version }}.zip
+            FSMP-${{ needs.prepare.outputs.tag_version }}-tracy-avx2.zip
           if-no-files-found: error
 
   release:
@@ -363,7 +375,9 @@ jobs:
             Build Date: ${{ github.event.head_commit.timestamp }}
             Commit: ${{ github.sha }}
             Automated Semantic Build.
-          files: "FSMP-${{ needs.prepare.outputs.tag_version }}.zip"
+          files: |
+            FSMP-${{ needs.prepare.outputs.tag_version }}.zip
+            FSMP-${{ needs.prepare.outputs.tag_version }}-tracy-avx2.zip
           # prerelease is true for all branches except master
           prerelease: ${{ github.ref_name != 'master' }}
 
