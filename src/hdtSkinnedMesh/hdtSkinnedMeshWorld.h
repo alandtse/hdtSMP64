@@ -6,6 +6,7 @@
 #include "hdtTraceRecorder.h"
 #include <BulletCollision/CollisionDispatch/btSimulationIslandManager.h>
 #include <BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.h>
+#include <tbb/task_arena.h>
 
 namespace hdt
 {
@@ -46,8 +47,10 @@ namespace hdt
 			for (size_t i = 0; i < n; ++i)
 				m_timeSteps[i] = m_systems[i]->prepareForRead(timeStep);
 
-			tbb::parallel_for(size_t{ 0 }, n, [this](size_t i) {
-				m_systems[i]->readTransform(m_timeSteps[i]);
+			tbb::this_task_arena::isolate([&] {
+				tbb::parallel_for(size_t{ 0 }, n, [this](size_t i) {
+					m_systems[i]->readTransform(m_timeSteps[i]);
+				});
 			});
 		}
 
